@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.example.org/allairline/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="allairline" targetNamespace="http://www.example.org/allairline/" xmlns:xsd1="http://www.mulesoft.com/schemas/Mule/Schema.xsd">
+  <wsdl:types>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    	<xsd:import
+    		namespace="http://www.mulesoft.com/schemas/Mule/Schema.xsd"
+    		schemaLocation="airlineSchema.xsd">
+    	</xsd:import>
+    	
+    	</xsd:schema><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/allairline/">
+	<xsd:element name="getAllFlight">
+		<xsd:complexType>
+			<xsd:sequence>
+
+				<xsd:element name="in" type="xsd:string"></xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getAllFlightResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+
+				<xsd:element name="out" type="xsd:string"></xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element></xsd:schema></wsdl:types>
+  <wsdl:message name="getFlightRequest">
+    <wsdl:part element="xsd1:flightRequest" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="getFlightResponse">
+    <wsdl:part element="xsd1:flightResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="getFlightFareRequest">
+  	<wsdl:part name="parameters" element="xsd1:flightFareRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getFlightFareResponse">
+  	<wsdl:part name="parameters" element="xsd1:flightFareResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAllFlightRequest">
+  	<wsdl:part name="parameters" element="xsd1:allFlightRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAllFlightResponse">
+  	<wsdl:part name="parameters" element="xsd1:flightResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="airlineServicePortType">
+    <wsdl:operation name="getFlight">
+      <wsdl:input message="tns:getFlightRequest"/>
+      <wsdl:output message="tns:getFlightResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getFlightFare">
+    	<wsdl:input message="tns:getFlightFareRequest"></wsdl:input>
+    	<wsdl:output message="tns:getFlightFareResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAllFlight">
+    	<wsdl:input message="tns:getAllFlightRequest"></wsdl:input>
+    	<wsdl:output message="tns:getAllFlightResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="airlineServiceSoapBindig"
+  	type="tns:airlineServicePortType">
+
+  	<soap:binding style="document"
+  		transport="http://schemas.xmlsoap.org/soap/http" />
+  	<wsdl:operation name="getFlight">
+
+  		<soap:operation
+  			soapAction="http://www.example.org/allairline/getFlight" />
+  		<wsdl:input>
+
+  			<soap:body use="literal" />
+  		</wsdl:input>
+  		<wsdl:output>
+
+  			<soap:body use="literal" />
+  		</wsdl:output>
+  	</wsdl:operation>
+  	<wsdl:operation name="getFlightFare">
+
+  		<soap:operation
+  			soapAction="http://www.example.org/allairline/getFlightFare" />
+  		<wsdl:input>
+
+  			<soap:body use="literal" />
+  		</wsdl:input>
+  		<wsdl:output>
+
+  			<soap:body use="literal" />
+  		</wsdl:output>
+  	</wsdl:operation>
+  	<wsdl:operation name="getAllFlight">
+  		<soap:operation
+  			soapAction="http://www.example.org/allairline/getAllFlight" />
+  		<wsdl:input>
+  			<soap:body use="literal" />
+  		</wsdl:input>
+  		<wsdl:output>
+  			<soap:body use="literal" />
+  		</wsdl:output>
+  	</wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="airlineService">
+    <wsdl:port binding="tns:airlineServiceSoapBindig" name="airlineServicePort">
+      <soap:address location="http://localhost:8091/airlineservice"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

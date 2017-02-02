@@ -1,0 +1,66 @@
+#%RAML 1.0
+title: Multi Airlines Service API
+version: v1
+baseUri: http://localhost:8081/api/
+securitySchemes: 
+ -basic:
+    type: Basic Authentication
+
+documentation:
+  - title: Multi Airlines Service API
+    content: |
+      Airline Portal for flight information from Jet Air, Indigo and GoAir  
+      
+/allairlines:
+  /flights:
+      displayName: Find Flights 
+      post: 
+        description: Find Flight information available for booking
+        body: 
+          application/json: 
+            example: !include template/request/flight-request.json
+        responses:       
+          200:
+            body:
+                application/xml:
+                application/json: 
+                text/plain: 
+                  example: !include template/getFlight-response.xml
+  /minfare:
+    description: search max and min fare for a route 
+    displayName: Get Max and Min Fare
+    post: 
+      body: 
+        application/json:
+          example: !include template/request/fare-request.json 
+      responses:
+        200:
+            body:
+              application/json: 
+              application/xml:
+              text/plain:
+                example: !include template/getFare-response.xml          
+ 
+/airlines:                
+  /{airline}:
+      description: Airline Name [JetAir,Indigo,GoAir]
+      /flights:
+        securedBy: -basic
+        post: 
+          description: Find Flight information available for booking
+          body: 
+            application/json: 
+              example: !include template/request/flight-request.json
+          responses:       
+            200:
+              body:
+                  application/xml:
+                  application/json: 
+                  text/plain: 
+                    example: !include template/getFlight-response.xml
+  
+              
+       
+        
+
+         

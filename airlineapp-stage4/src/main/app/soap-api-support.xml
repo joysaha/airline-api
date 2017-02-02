@@ -1,0 +1,46 @@
+<mule xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd">
+  <mulexml:namespace-manager includeConfigNamespaces="true">
+		<mulexml:namespace prefix="sch" uri="http://www.mulesoft.com/schemas/Mule/Schema.xsd" />
+  </mulexml:namespace-manager>  
+  <http:listener-config name="api-httpListenerConfig" host="0.0.0.0" port="${http.soap.port}" doc:name="HTTP Listener Configuration"/>
+  <apikit-soap:config name="/airlineService/airlineServicePort/api-config" wsdlUrl="allairline.wsdl" serviceName="airlineService" portName="airlineServicePort" doc:name="APIkit SOAP: Configuration"/>
+  <flow name="api-main">
+    <http:listener path="/airlineService/airlineServicePort" config-ref="api-httpListenerConfig" doc:name="/airlineService/airlineServicePort" />
+    <apikit-soap:router config-ref="/airlineService/airlineServicePort/api-config" doc:name="SOAP Router"/>
+  </flow>
+  <flow name="getFlight:/airlineService/airlineServicePort/api-config">
+        <logger message="Airline Service SOAP API Invoked" level="INFO" doc:name="Logger"/>
+        <mulexml:dom-to-xml-transformer doc:name="DOM to XML"/>
+        <expression-component doc:name="Set flowVars [airline, source,destination] "><![CDATA[//flowVars.airline=xpath3("sch:getFlightsRequest/sch:airline");
+// Setting input variable - airline, source and destination
+flowVars.airline = xpath3('sch:flightRequest/sch:airline');
+flowVars.source = xpath3('sch:flightRequest/sch:source');
+flowVars.destination = xpath3('sch:flightRequest/sch:destination');
+]]></expression-component>
+		 <flow-ref name="singleairlineFlow" doc:name="singleairlineFlow" />
+  </flow>
+  <flow name="getFlightFare:/airlineService/airlineServicePort/api-config">
+        <logger message="Airline Fare SOAP API - Flight Fare-Invoked" level="INFO" doc:name="Logger"/>
+        <mulexml:dom-to-xml-transformer doc:name="DOM to XML"/>
+        <expression-component doc:name="Set flowVars [source,destination] "><![CDATA[//flowVars.airline=xpath3("sch:getFlightsRequest/sch:airline");
+// Setting input variable - source and destination
+flowVars.source = xpath3('sch:flightFareRequest/sch:source');
+flowVars.destination = xpath3('sch:flightFareRequest/sch:destination');
+]]></expression-component>
+        <flow-ref name="airline_fare_serviceFlow" doc:name="airline_fare_serviceFlow"/>
+  </flow>
+  <flow name="getAllFlight:/airlineService/airlineServicePort/api-config">
+        <logger message="Airline Service SOAP API All Flight Request Invoked" level="INFO" doc:name="Logger"/>
+        <mulexml:dom-to-xml-transformer doc:name="DOM to XML"/>
+        <expression-component doc:name="Set flowVars - source,destination"><![CDATA[//flowVars.airline=xpath3("sch:getFlightsRequest/sch:airline");
+// Setting input variable - airline, source and destination
+flowVars.source = xpath3('sch:allFlightRequest/sch:source');
+flowVars.destination = xpath3('sch:allFlightRequest/sch:destination');
+]]></expression-component>
+		 <flow-ref name="allairlinesFlow" doc:name="allairlinesFlow" />  </flow>
+</mule>

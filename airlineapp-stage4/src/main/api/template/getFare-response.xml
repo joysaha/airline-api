@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<flight-fare>
+	<min-fare>
+	    <airline>Indigo</airline>
+		<flight_no>101001</flight_no>
+		<flight_name>9W-K-7079</flight_name>
+		<flight_status>Domestic</flight_status>
+		<dept_day>Monday</dept_day>
+		<depart_time>12:30 PM</depart_time>
+		<arrival_time>3:00 PM</arrival_time>
+		<source>Delhi</source>
+		<destination>Kolkata</destination>
+		<distance>2000KM</distance>
+		<fare>5000</fare>
+		<is-availabe>true</is-availabe>
+	</min-fare>
+</flight-fare>

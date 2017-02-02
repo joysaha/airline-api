@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3306" user="root" password="admin" database="airline_db" doc:name="MySQL Configuration"/>
+    <flow name="airline_fare_serviceFlow">
+    	
+        <scatter-gather doc:name="Scatter-Gather">
+            <processor-chain>
+                <set-variable variableName="airline" value="Indigo" doc:name="set airline = Indigo"/>
+                <flow-ref name="fare_Sub_Flow" doc:name="fare_Sub_Flow"/>
+            </processor-chain>
+            <processor-chain>
+                <set-variable variableName="airline" value="Go Air" doc:name="set airline = Go Air"/>
+                <flow-ref name="fare_Sub_Flow" doc:name="fare_Sub_Flow"/>
+            </processor-chain>
+			    <processor-chain>
+                <set-variable variableName="airline" value="Jet Airways" doc:name="set airline = Jet Airways"/>
+                <flow-ref name="fare_Sub_Flow" doc:name="fare_Sub_Flow"/>
+            </processor-chain>            
+         </scatter-gather>
+        <combine-collections-transformer doc:name="Combine Collections"/>
+        <expression-component doc:name="Expression - find lowest fare"><![CDATA[// Will process Lowest fare for the Airline
+System.out.print('Low fare Airline processor');
+if (payload.size()> 0) {
+flowVars.minFlight = payload[0];
+lowestFare = payload[0].fare;
+foreach ( flight : payload ) {
+  fare = flight.fare;
+ if ( lowestFare > fare ) {
+	lowestFare = flowVars.fare;
+   flowVars.minFlight = flight;
+}
+}
+}]]></expression-component>
+
+
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	flight-fare: {
+		min-fare: {
+			airline:flowVars.minFlight.c_name,
+			source : flowVars.minFlight.source,
+			destination : flowVars.minFlight.destination,
+			fare : flowVars.minFlight.fare
+		}
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="Lowest Fare : #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+        
+    </flow>
+    <sub-flow name="fare_Sub_Flow">
+        <expression-component doc:name="DB Query - min fare Flights "><![CDATA[//Dynamic Query
+flowVars.flight_query = 'select c_name,rt.source, destination,fare'+
+                                      ' from airline_route_fare rf, route rt, company al'+
+									  '	where rf.route_id = rt.route_id and al.c_id = rf.c_id'+ 
+									  ' and c_name = \''+ flowVars.airline+ '\''+
+									  '	and rt.source = \''+ flowVars.source+ '\'';
+										  
+if ( flowVars.destination != empty ) 
+{
+ flowVars.flight_query += ' and rt.destination =  \''+ destination +'\''; 
+}]]></expression-component>
+        <logger message="#[flowVars.airline] :: SQL :#[flowVars.flight_query]" level="INFO" doc:name="Logger"/>
+
+        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <db:dynamic-query><![CDATA[#[flowVars.flight_query]]]></db:dynamic-query>
+
+        </db:select>
+        <logger message="#[flowVars.airline] :: Query Details :  #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+
+    </sub-flow>
+   
+</mule>

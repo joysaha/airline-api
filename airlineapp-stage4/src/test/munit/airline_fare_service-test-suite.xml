@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:mock="http://www.mulesoft.org/schema/mule/mock"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration"/>
+    <spring:beans>
+        <spring:import resource="classpath:airline_fare_service.xml"/>
+    </spring:beans>
+
+    
+    <munit:test name="airline_fare_service-test-suite-airline_fare_serviceFlowTest" description="Test" ignore="true">
+    	<munit:set payload="#['']" doc:name="Set Message">
+	    	<munit:invocation-properties >
+	    		<munit:invocation-property key="source" value="Goa"/>
+	    	</munit:invocation-properties>
+    	</munit:set>
+        <flow-ref name="airline_fare_serviceFlow" doc:name="airline_fare_serviceFlow"/>
+        		<dw:transform-message doc:name="prepare messages for assertion">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map $]]></dw:set-payload>
+			<dw:set-variable variableName="expectedPayload"><![CDATA[%dw 1.0
+%output application/java
+---
+{destination:"Pune", fare:"2000", source:"Goa", c_name:"Indigo" }
+
+
+]]></dw:set-variable>
+		</dw:transform-message>
+        <munit:assert-true condition="#[flowVars.expectedPayload.fare == flowVars.minFlight.fare]" doc:name="Assert True" message="failed while testing min fare"/>
+        	
+    </munit:test>
+</mule>

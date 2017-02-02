@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <db:mysql-config name="MySQL_GoAir" host="localhost" port="3306" user="root" password="admin" database="airline_db" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Indigo" host="localhost" port="3306" user="root" password="admin" database="airline_db" doc:name="MySQL Configuration"/>
+   <payload-type-filter expectedType="java.util.ArrayList"
+		name="Filter_Not_ArrayList" doc:name="Payload" />
+  
+    <flow name="allairlinesFlow">
+        <scatter-gather doc:name="Scatter-Gather">
+            <processor-chain>
+                <set-variable variableName="airline" value="Indigo" doc:name="airline = Indigo"/>
+                <flow-ref name="Flight-DB-Query" doc:name="Flight-DB-Query"/>
+            </processor-chain>
+            <processor-chain>
+                <set-variable variableName="airline" value="Go Air" doc:name="airline=Go Air"/>
+                <flow-ref name="Flight-DB-Query" doc:name="Flight-DB-Query"/>
+            </processor-chain>
+            <processor-chain>
+                <set-variable variableName="airline" value="Jet Airways" doc:name="set airline = Jet Airways"/>
+                <flow-ref name="Flight-DB-Query" doc:name="Flight-DB-Query"/>
+            </processor-chain>
+
+        </scatter-gather>
+        <combine-collections-transformer doc:name="Combine Collections"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:input-payload doc:sample="sample_data\json.json"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	flight-Info : {
+	(payload map {
+		flight : {
+			airline: $.airline,
+			flight_no: $.flight_name,
+			flight_name: $.flight_name,
+			depart_time: $.depart_time,
+			source: $.source,
+			destination: $.destination
+			}
+	})
+	
+	}
+}
+]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="palyload after merge #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+
+
+    </flow>
+    <flow name="singleairlineFlow">
+        <logger message="'Airline Flight Service process invoked , Flight Name :' #[flowVars.airline]" level="INFO" doc:name="Logger"/>
+        <choice doc:name="Choice">
+            <when expression="airline.toUpperCase().contains(&quot;GO AIR&quot;)">
+
+                <flow-ref name="Flight-DB-Query" doc:name="Flight-DB-Query"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+flight-Info : { (payload map {
+	flight: {
+			airline:	flowVars.airline,
+			flight_no: $.flight_no ,
+			flight_name: $.flight_name,
+			day: $.day_name,
+			source: $.source,
+			destination: $.destination,
+			depart_time: $.depart_time,
+			arrival_time: $.arrival_time,
+			distance: $.distance 
+		}
+	}
+	)}
+]]></dw:set-payload>
+                </dw:transform-message>
+
+
+            </when>
+            <when expression="airline.toUpperCase().contains(&quot;INDIGO&quot;)">
+                <flow-ref name="Flight-DB-Query" doc:name="Flight-DB-Query"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+flight-list : { (payload map {
+	flight: {
+			airline:	flowVars.airline,
+			flight_no: $.flight_no ,
+			flight_name: $.flight_name,
+			day: $.day_name,
+			source: $.source,
+			destination: $.destination,
+			depart_time: $.depart_time,
+			arrival_time: $.arrival_time,
+			distance: $.distance 
+		}
+	}
+	)}
+]]></dw:set-payload>
+                </dw:transform-message>
+
+            </when>
+           <when expression="airline.toUpperCase().contains(&quot;JET&quot;)">
+                <flow-ref name="Flight-DB-Query" doc:name="Flight-DB-Query"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+flight-Info : { (payload map {
+	flight: {
+			airline:	flowVars.airline,
+			flight_no: $.flight_no ,
+			flight_name: $.flight_name,
+			day: $.day_name,
+			source: $.source,
+			destination: $.destination,
+			depart_time: $.depart_time,
+			arrival_time: $.arrival_time,
+			distance: $.distance 
+		}
+	}
+	)}
+]]></dw:set-payload>
+                </dw:transform-message>
+
+
+            </when>
+
+            <otherwise>
+                <logger message="Note a valid airline : Expected airline input [ Jet Airways , Indigo, Go Air ]" level="INFO" doc:name="Logger"/>
+                <set-payload value="Arilines API Not Available for Airline :: #[flowVars.airline]" doc:name="Set Payload"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+
+flight-Info : { 
+	flight: 'Invalid Airline , Please enter valid Airline[Jet Airways, Indigo Go Air]'
+	
+}
+			
+			
+]]></dw:set-payload>
+                </dw:transform-message>
+            </otherwise>
+        </choice>
+        <object-to-string-transformer doc:name="Object to String"/>
+    </flow>
+
+    <sub-flow name="Flight-DB-Query">
+        <expression-component doc:name="SQL Query"><![CDATA[//Dynamic flight Query 
+// flowVars.airline = 'Go Air';
+
+flowVars.flight_query='Select c.c_name airline,fd.flight_no,fd.flight_name, d.day_name,r.source,r.destination,fr.depart_time,fr.arrival_time,  r.distance'
+                                  	+ ' from flight_detail fd, flight_route fr, route r, days d, company c'
+      								+ ' where fd.flight_no=fr.flight_no'
+									+ ' and fr.route_id = r.route_id'
+									+ ' and fr.day_id = d.day_id' 
+									+ ' and fd.c_id= c.c_id and c.c_name=   \''+ airline +'\'';   
+
+if ( flowVars.source != empty ) 
+{
+ flowVars.flight_query += ' and r.source = \''+ source +'\'';
+}
+
+if ( flowVars.destination != empty ) 
+{
+ flowVars.flight_query += ' and r.destination =  \''+ destination +'\''; 
+}
+]]></expression-component>
+        <logger message="GoAir flight Query : #[flowVars.flight_query]" level="INFO" doc:name="Logger"/>
+        <db:select config-ref="MySQL_Indigo" doc:name="Database">
+            <db:dynamic-query><![CDATA[#[flowVars.flight_query]]]></db:dynamic-query>
+        </db:select>
+        <logger message="go air : #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+    </sub-flow>       
+</mule>

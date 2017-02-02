@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mock="http://www.mulesoft.org/schema/mule/mock"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration"/>
+    <spring:beans>
+        <spring:import resource="classpath:airline-flight-service.xml"/>
+    </spring:beans>
+    <munit:test name="airline-flight-service-test-suite-allairlinesFlowTest" description="Test" >
+    	<mock:when messageProcessor=".*:.*" doc:name="Mock Message Transformer">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Transform Message']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[samePayload()]">
+            </mock:then-return>
+        </mock:when>
+        <munit:set payload="#['']" doc:name="Set Message">
+	    	<munit:invocation-properties >
+	    		<munit:invocation-property key="source" value="Delhi"/>
+	    	</munit:invocation-properties>
+    	</munit:set>
+        <flow-ref name="allairlinesFlow" doc:name="allairlinesFlow"/>
+        <munit:assert-true condition="#[payload.size() > 0]" doc:name="Assert True"/>
+    </munit:test>
+    <munit:test name="airline-flight-service-test-suite-singleairlineFlowTest" description="Test" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Message Transformer">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Transform Message']"/>
+            </mock:with-attributes>
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Object-to-String">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Object to String']"/>
+            </mock:with-attributes>
+        </mock:when>
+        <munit:set payload="#['']" doc:name="Set Message">
+	    	<munit:invocation-properties >
+	    		<munit:invocation-property key="airline" value="Indigo"/>
+	    		<munit:invocation-property key="source" value="Goa"/>
+	    	</munit:invocation-properties>
+    	</munit:set>
+        <flow-ref name="singleairlineFlow" doc:name="singleairlineFlow"/>
+        <munit:assert-true condition="#[payload.size() > 0]" doc:name="Assert True"/>
+    </munit:test> 
+</mule>

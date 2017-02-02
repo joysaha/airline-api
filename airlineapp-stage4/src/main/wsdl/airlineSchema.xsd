@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	 xmlns="http://www.mulesoft.com/schemas/Mule/Schema.xsd"
+	 targetNamespace="http://www.mulesoft.com/schemas/Mule/Schema.xsd"
+	 elementFormDefault="qualified"
+	 attributeFormDefault="unqualified">
+	 <xs:simpleType name="airlineType" final="restriction" >
+	    <xs:restriction base="xs:string">
+	        <xs:enumeration value="All" />
+	        <xs:enumeration value="JetAirways" />
+	        <xs:enumeration value="Indigo" />
+	        <xs:enumeration value="GoAir" />
+	    </xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="flightRequestType">
+		<xs:sequence>
+			<xs:element name="airline" type="xs:string"/>
+			<xs:element name="flight_no" type="xs:string"/>
+			<xs:element name="flight_status" type="xs:string"/>
+			<xs:element name="dept_day" type="xs:string"/>
+			<xs:element name="depart_time" type="xs:string"/>
+			<xs:element name="arrival_time" type="xs:string"/>
+			<xs:element name="distance" type="xs:integer"/>
+			<xs:element name="source" type="xs:string"/>
+			<xs:element name="destination" type="xs:string"/>
+			<xs:element name="fare" type="xs:string"/>
+			<xs:element name="is-availabe" type="xs:boolean"/>				
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="flightRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="airline" type="airlineType" minOccurs="1" />
+				<xs:element name="source" type="xs:string"></xs:element>
+				<xs:element name="destination" type="xs:string" ></xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="allFlightRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="source" type="xs:string"></xs:element>
+				<xs:element name="destination" type="xs:string" ></xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="flightFareRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="source" type="xs:string"></xs:element>
+				<xs:element name="destination" type="xs:string" ></xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="flightResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="flight-info">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="flight" type="flightRequestType" minOccurs="0" maxOccurs="unbounded">
+								
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+		<xs:element name="flightFareResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="flight-fare">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="min-fare" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="airline" type="xs:string"/>
+										<xs:element name="flight_no" type="xs:string"/>
+										<xs:element name="flight_status" type="xs:string"/>
+										<xs:element name="dept_day" type="xs:string"/>
+										<xs:element name="depart_time" type="xs:string"/>
+										<xs:element name="arrival_time" type="xs:string"/>
+										<xs:element name="distance" type="xs:integer"/>
+										<xs:element name="source" type="xs:string"/>
+										<xs:element name="destination" type="xs:string"/>
+										<xs:element name="fare" type="xs:string"/>
+										<xs:element name="is-availabe" type="xs:boolean"/>										
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
