@@ -51,10 +51,13 @@ foreach ( flight : payload ) {
 {
 	flight-fare: {
 		min-fare: {
-			airline:flowVars.minFlight.c_name,
-			source : flowVars.minFlight.source,
+			airline:flowVars.minFlight.c_name ,
+			source : flowVars.minFlight.source ,
 			destination : flowVars.minFlight.destination,
 			fare : flowVars.minFlight.fare
+		} when flowVars.minFlight != empty
+		otherwise {
+			"airline":"No airlises found"
 		}
 	}
 }]]></dw:set-payload>
