@@ -24,7 +24,7 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory>/classes</outputDirectory>
 			<directory>src/main/wsdl</directory>
 			<includes>
 				<include>*</include>
@@ -79,7 +79,6 @@
 				<include>*commons-net*</include>
 				<include>*annotation*</include>
 				<include>*mule-module-api*</include>
-
   			</includes>
 		</dependencySet>
 	</dependencySets>
